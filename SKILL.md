@@ -26,17 +26,17 @@ playwright install chromium
 2. **Responsive Verification:** Before declaring completion on any UI task to verify mobile (`375px`), tablet (`768px`), and desktop (`1440px`) layouts.
 3. **Pre-Ship QA:** To guarantee zero horizontal scrollbars, zero occluded CTA buttons, and zero broken asset placeholders.
 
-## Execution Command
+## Autonomous Execution Command
 
-Run the audit CLI against the target page or local development server:
+Run the audit CLI against the target page or local development server. It automatically detects environment and boots models without manual steps:
 
 ```bash
-testuiux <TARGET_URL_OR_FILE> --format json --notify --output-dir audit_results
+testuiux <TARGET_URL_OR_FILE>
 ```
 
-For dry-run / mock verification without active Ollama instance:
+To export all reports including HTML side-by-side comparison:
 ```bash
-testuiux <TARGET_URL_OR_FILE> --mode mock --format json --output-dir audit_results
+testuiux <TARGET_URL_OR_FILE> --format all --output-dir audit_results
 ```
 
 ## Primary AI Ingestion Flow

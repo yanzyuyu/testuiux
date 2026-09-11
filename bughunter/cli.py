@@ -12,6 +12,7 @@ from bughunter.annotator import annotate_image
 from bughunter.reporter import generate_html_report
 from bughunter.json_reporter import export_json_report
 from bughunter.summarizer import generate_agent_briefing
+from bughunter.service import ensure_runtime_environment
 
 console = Console()
 
@@ -28,12 +29,21 @@ async def run_audit(
     notify: bool,
     format_type: str,
 ) -> tuple[AuditReport, str]:
+    resolved_mode = mode
+    if mode == "auto":
+        with console.status("[bold cyan]Auto-detecting AI runtime and Ollama daemon..."):
+            resolved_mode = await ensure_runtime_environment(
+                api_base=api_base,
+                vision_model=model,
+                triage_model=small_model,
+            )
+
     console.print(
         Panel(
             f"[bold cyan]Target:[/bold cyan] {target}\n"
-            f"[bold cyan]Mode:[/bold cyan] {mode}\n"
-            f"[bold cyan]Vision Model:[/bold cyan] {model if mode == 'api' else 'mock/heuristic'}\n"
-            f"[bold cyan]Triage Model:[/bold cyan] {small_model if notify else 'disabled'}\n"
+            f"[bold cyan]Mode:[/bold cyan] {resolved_mode} (requested: {mode})\n"
+            f"[bold cyan]Vision Model:[/bold cyan] {model if resolved_mode == 'api' else 'mock/heuristic'}\n"
+            f"[bold cyan]Triage Model:[/bold cyan] {small_model if (notify and resolved_mode == 'api') else 'fallback'}\n"
             f"[bold cyan]Format:[/bold cyan] {format_type}",
             title="Visual Bug Hunter",
         )
@@ -54,7 +64,7 @@ async def run_audit(
             issues = await detect_visual_issues(
                 image_path=Path(vp.screenshot_path),
                 viewport_name=vp.viewport_name,
-                mode=mode,
+                mode=resolved_mode,
                 api_base=api_base,
                 model=model,
                 api_key=api_key,
@@ -91,7 +101,7 @@ async def run_audit(
                 api_base=api_base,
                 model=small_model,
                 api_key=api_key,
-                use_small_model=(mode == "api"),
+                use_small_model=(resolved_mode == "api"),
             )
             briefing_file = output_dir / "agent_briefing.txt"
             with open(briefing_file, "w", encoding="utf-8") as f:
@@ -110,9 +120,9 @@ def main():
     )
     parser.add_argument(
         "--mode",
-        choices=["mock", "api"],
-        default="mock",
-        help="Detection mode: mock (heuristic demo) or api (Qwen2.5-VL via Ollama/OpenAI)",
+        choices=["auto", "api", "mock"],
+        default="auto",
+        help="Detection mode: auto (auto-detect Ollama), api (enforce Ollama), mock (heuristic)",
     )
     parser.add_argument(
         "--api-base",

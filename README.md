@@ -7,6 +7,7 @@ Autonomous visual UI/UX defect detector and responsive layout verification engin
 
 ## Features
 
+- **Zero Manual Setup**: Fully autonomous model lifecycle. Automatically detects local Ollama instances, boots the daemon in the background if closed, and pulls models on-demand.
 - **Multi-Viewport Automated Capture**: Uses Playwright to render mobile (`375x812`), tablet (`768x1024`), and desktop (`1440x900`) viewports.
 - **Vision-Language QA Inspection**: Evaluates screenshots with Qwen2.5-VL to spot element collisions, text overlap, truncation, unconstrained horizontal overflows, broken assets, and unreadable color contrast.
 - **Visual Defect Highlighting**: Uses Pillow to render color-coded bounding boxes and severity badges.
@@ -18,7 +19,7 @@ Autonomous visual UI/UX defect detector and responsive layout verification engin
 
 - Python 3.10+
 - Playwright Chromium (`playwright install chromium`)
-- Ollama with `qwen2.5-vl:3b` and `qwen2.5:1.5b` (or `--mode mock` for dry-run verification)
+- Ollama (optional, auto-detected if installed)
 
 ## Installation
 
@@ -31,33 +32,24 @@ playwright install chromium
 
 ## Usage
 
-### 1. Test Run (Mock / Dry-Run Verification)
+### 1. Autonomous Run (Zero Configuration)
 
-Execute a verification run against any local HTML file or staging URL:
+Point `testuiux` to any URL or local HTML file. The tool automatically detects runtime environment and produces JSON audit data with agent briefings:
 
 ```bash
-testuiux demo/buggy_site.html --mode mock --format json
+testuiux http://localhost:3000
 ```
 
-### 2. Live Scan with Local AI Models (Ollama)
-
-Ensure local Ollama models are running:
+Or on local HTML files:
 
 ```bash
-ollama run qwen2.5-vl:3b
-ollama run qwen2.5:1.5b
+testuiux demo/buggy_site.html
 ```
 
-Run audit against development or staging server:
+### 2. Export All Formats (JSON + Side-by-Side HTML Report)
 
 ```bash
-testuiux http://localhost:3000 --mode api --format json --notify
-```
-
-### 3. Generate All Artifacts (JSON + HTML Report)
-
-```bash
-testuiux http://localhost:3000 --mode api --format all --output-dir ./audit_results
+testuiux http://localhost:3000 --format all --output-dir ./audit_results
 ```
 
 ## Generated Artifacts

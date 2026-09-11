@@ -1,8 +1,5 @@
-import asyncio
-import shutil
-import subprocess
-from rich.console import Console
 import httpx
+from rich.console import Console
 
 console = Console()
 
@@ -17,28 +14,6 @@ async def check_ollama_alive(api_base: str = "http://localhost:11434") -> bool:
         return False
 
 
-async def start_ollama_daemon() -> bool:
-    ollama_bin = shutil.which("ollama")
-    if not ollama_bin:
-        return False
-
-    try:
-        subprocess.Popen(
-            [ollama_bin, "serve"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        for _ in range(12):
-            await asyncio.sleep(0.5)
-            if await check_ollama_alive():
-                return True
-    except Exception:
-        return False
-
-    return False
-
-
 async def ensure_model_pulled(api_base: str, model_name: str) -> bool:
     host = api_base.replace("/v1", "")
     try:
@@ -51,7 +26,7 @@ async def ensure_model_pulled(api_base: str, model_name: str) -> bool:
                 if model_name in installed or model_name in installed_bases:
                     return True
 
-                with console.status(f"[bold cyan]Auto-pulling required model '{model_name}' from Ollama registry..."):
+                with console.status(f"[bold cyan]Auto-pulling required model '{model_name}' via Ollama API..."):
                     pull_resp = await client.post(
                         f"{host}/api/pull",
                         json={"name": model_name, "stream": False},
@@ -70,14 +45,10 @@ async def ensure_runtime_environment(
 ) -> str:
     is_alive = await check_ollama_alive(api_base)
     if not is_alive:
-        console.print("[yellow]Ollama service is not running. Attempting auto-start...[/yellow]")
-        is_alive = await start_ollama_daemon()
-
-    if not is_alive:
-        console.print("[yellow]Ollama not detected or not installed. Running in heuristic fallback mode.[/yellow]")
+        console.print("[yellow]Local Ollama service not detected at " + api_base + ". Seamlessly running in fallback mode.[/yellow]")
         return "mock"
 
-    console.print("[green]Ollama service active.[/green]")
+    console.print("[green]Ollama service active at " + api_base + ".[/green]")
     await ensure_model_pulled(api_base, vision_model)
     await ensure_model_pulled(api_base, triage_model)
     return "api"

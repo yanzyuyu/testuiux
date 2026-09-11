@@ -2,6 +2,9 @@
 
 Autonomous visual UI/UX defect detector and responsive layout verification engine powered by Playwright and Qwen2.5-VL. Captures multi-viewport screenshots, recognizes layout bugs, generates structured `report.json`, and triggers a lightweight triage model (SLM) to produce an executive briefing directly consumable by primary coding agents.
 
+[![PyPI version](https://img.shields.io/pypi/v/testuiux.svg)](https://pypi.org/project/testuiux/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## Features
 
 - **Multi-Viewport Automated Capture**: Uses Playwright to render mobile (`375x812`), tablet (`768x1024`), and desktop (`1440x900`) viewports.
@@ -19,21 +22,21 @@ Autonomous visual UI/UX defect detector and responsive layout verification engin
 
 ## Installation
 
+Install directly from PyPI:
+
 ```bash
-git clone https://github.com/yanzyuyu/testuiux.git
-cd testuiux
-pip install -r requirements.txt
+pip install testuiux
 playwright install chromium
 ```
 
 ## Usage
 
-### 1. Test Run on Bundled Demo Fixture
+### 1. Test Run (Mock / Dry-Run Verification)
 
-Execute a verification run against `demo/buggy_site.html`:
+Execute a verification run against any local HTML file or staging URL:
 
 ```bash
-python -m bughunter.cli demo/buggy_site.html --mode mock --format json
+testuiux demo/buggy_site.html --mode mock --format json
 ```
 
 ### 2. Live Scan with Local AI Models (Ollama)
@@ -48,13 +51,13 @@ ollama run qwen2.5:1.5b
 Run audit against development or staging server:
 
 ```bash
-python -m bughunter.cli http://localhost:3000 --mode api --format json --notify
+testuiux http://localhost:3000 --mode api --format json --notify
 ```
 
 ### 3. Generate All Artifacts (JSON + HTML Report)
 
 ```bash
-python -m bughunter.cli http://localhost:3000 --mode api --format all --output-dir ./audit_results
+testuiux http://localhost:3000 --mode api --format all --output-dir ./audit_results
 ```
 
 ## Generated Artifacts

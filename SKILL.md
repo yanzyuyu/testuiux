@@ -13,6 +13,13 @@ description: >-
 
 Trigger this skill whenever you write or modify frontend code (HTML, CSS, JSX, TSX, Vue, Svelte, Tailwind, responsive templates) or serve a local development server.
 
+## Installation
+
+```bash
+pip install testuiux
+playwright install chromium
+```
+
 ## When to Execute
 
 1. **Post-Frontend Edits:** After changing CSS layout, components, navigation, modals, or footers.
@@ -24,12 +31,12 @@ Trigger this skill whenever you write or modify frontend code (HTML, CSS, JSX, T
 Run the audit CLI against the target page or local development server:
 
 ```bash
-python -m bughunter.cli <TARGET_URL_OR_FILE> --format json --notify --output-dir audit_results
+testuiux <TARGET_URL_OR_FILE> --format json --notify --output-dir audit_results
 ```
 
 For dry-run / mock verification without active Ollama instance:
 ```bash
-python -m bughunter.cli <TARGET_URL_OR_FILE> --mode mock --format json --output-dir audit_results
+testuiux <TARGET_URL_OR_FILE> --mode mock --format json --output-dir audit_results
 ```
 
 ## Primary AI Ingestion Flow
